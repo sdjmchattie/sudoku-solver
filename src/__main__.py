@@ -14,7 +14,7 @@ def main():
         lines = f.readlines()
         grid = Grid.from_rows_notation(lines)
 
-    print("Read grid")
+    grid.display()
 
 
 if __name__ == "__main__":
