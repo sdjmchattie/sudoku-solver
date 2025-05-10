@@ -56,13 +56,15 @@ class Grid:
         Display the grid in a human-readable format.
         """
         for row_index, row in enumerate(self._grid):
-            if row_index % 3 == 0 and row_index != 0:
-                print("-" * 6 + "+" + "-" * 7 + "+" + "-" * 6)
+            if row_index % 3 == 0:
+                print("+" + "-" * 7 + "+" + "-" * 7 + "+" + "-" * 7 + "+")
 
             for col_index, cell in enumerate(row):
-                if col_index % 3 == 0 and col_index != 0:
+                if col_index % 3 == 0:
                     print("|", end=" ")
 
                 print(cell.value or ".", end=" ")
 
-            print()
+            print("|")
+
+        print("+" + "-" * 7 + "+" + "-" * 7 + "+" + "-" * 7 + "+")
