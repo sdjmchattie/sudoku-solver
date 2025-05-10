@@ -36,6 +36,12 @@ class Grid:
     def from_rows_notation(self, rows: list[str]) -> "Grid":
         """
         Create a 2D list of values from a list of strings, where each string represents a row of the grid.
+        Each character in the string is treated as a cell value.
+        If the character is a digit, it is converted to an integer representing a solved value.
+        If the character is not a digit, it is treated as an empty cell value.
+
+        Args:
+            rows (list): A list of strings representing the rows of the grid.
         """
         values = []
         for row in rows:
