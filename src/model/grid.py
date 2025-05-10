@@ -57,9 +57,6 @@ class Grid:
                 if col_index % 3 == 0 and col_index != 0:
                     print("|", end=" ")
 
-                if cell.value is not None:
-                    print(f"{cell.value}", end=" ")
-                else:
-                    print(".", end=" ")
+                print(cell.value or ".", end=" ")
 
             print()
