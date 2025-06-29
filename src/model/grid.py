@@ -2,7 +2,7 @@ import re
 
 from .cell import Cell
 
-numeric_regex = re.compile(r"^\d$")
+numeric_regex = re.compile(r"^[1-9]$")
 
 
 class Grid:
@@ -24,6 +24,9 @@ class Grid:
         Args:
             values (list): A 2D list of integers or None representing the grid.
         """
+        if len(values) != 9 or any(len(row) != 9 for row in values):
+            raise ValueError("Grid must be 9x9.")
+
         grid = []
         for row in values:
             grid_row = []
