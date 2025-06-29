@@ -16,7 +16,7 @@ class Cell:
         """
         self._value = None
         self._candidates = set(range(1, 10))
-        self.value = value
+        self.value = value or None
 
     @property
     def value(self) -> int | None:
@@ -42,7 +42,8 @@ class Cell:
             raise ValueError("Value must be between 1 and 9.")
 
         self._value = value
-        self._candidates.clear()
+        if value is not None:
+            self._candidates.clear()
 
     @property
     def candidates(self) -> set:
