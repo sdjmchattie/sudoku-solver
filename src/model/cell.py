@@ -16,7 +16,7 @@ class Cell:
         """
         self._value = None
         self._candidates = set(range(1, 10))
-        self.value = value or None
+        self.value = value
 
     @property
     def value(self) -> int | None:

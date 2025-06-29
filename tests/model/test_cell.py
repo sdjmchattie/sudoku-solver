@@ -89,7 +89,9 @@ def test_cell_candidates_cannot_be_set_if_value_is_set():
     with pytest.raises(ValueError) as err:
         cell.candidates = {1, 2, 3}
 
-    assert str(err.value) == "Cannot set candidates for a cell that already has a value."
+    assert (
+        str(err.value) == "Cannot set candidates for a cell that already has a value."
+    )
 
 
 def test_cell_candidates_cannot_be_set_with_invalid_value_zero():
