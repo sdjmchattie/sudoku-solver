@@ -14,7 +14,7 @@ class Cell:
         Args:
             value (int | None): The initial value of the cell. Defaults to None.
         """
-        self._value = None
+        self._value: int | None = None
         self._candidates = set(range(1, 10))
         self.value = value
 
@@ -29,7 +29,7 @@ class Cell:
         return self._value
 
     @value.setter
-    def value(self, value: int):
+    def value(self, value: int | None):
         """
         Sets the value of the cell unless it already has a value.
 

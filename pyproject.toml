@@ -1,28 +1,21 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "sudoku-solver"
 version = "0.1.0"
 description = "A Sudoku solver which applies rules the same way a human would."
-authors = [
-    {name = "Stuart McHattie"}
-]
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = [
+dependencies = []
+
+[dependency-groups]
+dev = [
+    "mypy>=1.16.1",
+    "pytest>=8.4.1",
+    "ruff>=0.12.3",
 ]
 
-[tool.poetry]
-packages = [
-    {include = "model", from = "src"},
-]
-
-[tool.poetry.scripts]
-sudoku-solver = "src.__main__:main"
-
-[tool.poetry.group.dev.dependencies]
-ruff = "^0.11.9"
-mypy = "^1.15.0"
-pytest = "^8.4.1"
-
-[build-system]
-requires = ["poetry-core>=2.0.0,<3.0.0"]
-build-backend = "poetry.core.masonry.api"
+[project.scripts]
+sudoku-solver = "solver:run"

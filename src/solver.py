@@ -9,7 +9,7 @@ parser.add_argument("input", help="The sudoku puzzle to solve.")
 args = parser.parse_args()
 
 
-def main():
+def run():
     with open(args.input, "r") as f:
         lines = f.readlines()
         grid = Grid.from_rows_notation(lines)
@@ -18,4 +18,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    run()
