@@ -16,6 +16,7 @@ class Grid:
             values (list): A 2D list of integers representing the grid.
         """
         self._create_grid(values)
+        self._initialize_candidates()
 
     def _create_grid(self, values: list[list[int | None]]):
         """
@@ -42,6 +43,22 @@ class Grid:
                 )
 
         self._grid = grid
+
+    def _initialize_candidates(self):
+        """
+        Initialize candidates for each cell in the grid.
+        i.e. start with all possible values (1-9) for each cell.
+        Remove candidate values based on the neighbouring cells with definite values.
+        Cells that already have a value are skipped.
+        """
+        for cell in self:
+            if cell.value is not None:
+                continue
+
+            cell.candidates = set(range(1, 10))
+            neighbours = self.get_neighbours(cell)
+            n_values = {n.value for n in neighbours if n.value is not None}
+            cell.candidates -= n_values
 
     def __iter__(self):
         """

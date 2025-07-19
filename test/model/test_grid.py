@@ -145,6 +145,108 @@ def test_grid_initialization_with_invalid_size_raises_error():
     assert str(err.value) == "Grid must be 9x9."
 
 
+def test_new_grid_sets_initial_candidates_correctly():
+    rows = [
+        ".7.2.8.31",
+        "48.3.7...",
+        "9.3..4758",
+        ".4687...3",
+        "89..3.56.",
+        "..792.81.",
+        "754.12...",
+        "...7.3145",
+        "3.8.4.2.6",
+    ]
+    grid = Grid.from_rows_notation(rows)
+
+    assert grid[Point(0, 0)].candidates == {5, 6}, (
+        "Cell (0, 0) should have candidates {5, 6}"
+    )
+    assert grid[Point(2, 0)].candidates == {5}, "Cell (2, 0) should have candidates {5}"
+    assert grid[Point(4, 0)].candidates == {9, 5, 6}, (
+        "Cell (4, 0) should have candidates {9, 5, 6}"
+    )
+    assert grid[Point(6, 0)].candidates == {9, 4, 6}, (
+        "Cell (6, 0) should have candidates {9, 4, 6}"
+    )
+    assert grid[Point(2, 1)].candidates == {1, 2, 5}, (
+        "Cell (2, 1) should have candidates {1, 2, 5}"
+    )
+    assert grid[Point(4, 1)].candidates == {9, 5, 6}, (
+        "Cell (4, 1) should have candidates {9, 5, 6}"
+    )
+    assert grid[Point(6, 1)].candidates == {9, 6}, (
+        "Cell (6, 1) should have candidates {9, 6}"
+    )
+    assert grid[Point(7, 1)].candidates == {9, 2}, (
+        "Cell (7, 1) should have candidates {9, 2}"
+    )
+    assert grid[Point(8, 1)].candidates == {9, 2}, (
+        "Cell (8, 1) should have candidates {9, 2}"
+    )
+    assert grid[Point(1, 2)].candidates == {1, 2, 6}, (
+        "Cell (1, 2) should have candidates {1, 2, 6}"
+    )
+    assert grid[Point(3, 2)].candidates == {1, 6}, (
+        "Cell (3, 2) should have candidates {1, 6}"
+    )
+    assert grid[Point(4, 2)].candidates == {6}, "Cell (4, 2) should have candidates {6}"
+    assert grid[Point(0, 3)].candidates == {1, 2, 5}, (
+        "Cell (0, 3) should have candidates {1, 2, 5}"
+    )
+    assert grid[Point(5, 3)].candidates == {1, 5}, (
+        "Cell (5, 3) should have candidates {1, 5}"
+    )
+    assert grid[Point(6, 3)].candidates == {9}, "Cell (6, 3) should have candidates {9}"
+    assert grid[Point(7, 3)].candidates == {9, 2}, (
+        "Cell (7, 3) should have candidates {9, 2}"
+    )
+    assert grid[Point(2, 4)].candidates == {1, 2}, (
+        "Cell (2, 4) should have candidates {1, 2}"
+    )
+    assert grid[Point(3, 4)].candidates == {1, 4}, (
+        "Cell (3, 4) should have candidates {1, 4}"
+    )
+    assert grid[Point(5, 4)].candidates == {1}, "Cell (5, 4) should have candidates {1}"
+    assert grid[Point(8, 4)].candidates == {2, 4, 7}, (
+        "Cell (8, 4) should have candidates {2, 4, 7}"
+    )
+    assert grid[Point(0, 5)].candidates == {5}, "Cell (0, 5) should have candidates {5}"
+    assert grid[Point(1, 5)].candidates == {3}, "Cell (1, 5) should have candidates {3}"
+    assert grid[Point(5, 5)].candidates == {5, 6}, (
+        "Cell (5, 5) should have candidates {5, 6}"
+    )
+    assert grid[Point(8, 5)].candidates == {4}, "Cell (8, 5) should have candidates {4}"
+    assert grid[Point(3, 6)].candidates == {6}, "Cell (3, 6) should have candidates {6}"
+    assert grid[Point(6, 6)].candidates == {9, 3}, (
+        "Cell (6, 6) should have candidates {9, 3}"
+    )
+    assert grid[Point(7, 6)].candidates == {8, 9}, (
+        "Cell (7, 6) should have candidates {8, 9}"
+    )
+    assert grid[Point(8, 6)].candidates == {9}, "Cell (8, 6) should have candidates {9}"
+    assert grid[Point(0, 7)].candidates == {2, 6}, (
+        "Cell (0, 7) should have candidates {2, 6}"
+    )
+    assert grid[Point(1, 7)].candidates == {2, 6}, (
+        "Cell (1, 7) should have candidates {2, 6}"
+    )
+    assert grid[Point(2, 7)].candidates == {9, 2}, (
+        "Cell (2, 7) should have candidates {9, 2}"
+    )
+    assert grid[Point(4, 7)].candidates == {8, 9, 6}, (
+        "Cell (4, 7) should have candidates {8, 9, 6}"
+    )
+    assert grid[Point(1, 8)].candidates == {1}, "Cell (1, 8) should have candidates {1}"
+    assert grid[Point(3, 8)].candidates == {5}, "Cell (3, 8) should have candidates {5}"
+    assert grid[Point(5, 8)].candidates == {9, 5}, (
+        "Cell (5, 8) should have candidates {9, 5}"
+    )
+    assert grid[Point(7, 8)].candidates == {9, 7}, (
+        "Cell (7, 8) should have candidates {9, 7}"
+    )
+
+
 def test_iteration_over_grid_cells():
     rows = [
         "123456789",
