@@ -385,23 +385,17 @@ def test_get_row_cells_no_block():
     # Test a cell in row 0
     row = grid.get_row_cells(0)
     assert len(row) == 9
-    assert all([cell.value == 1 for cell in row]), (
-        "Values should all be 1 in row 0"
-    )
+    assert all([cell.value == 1 for cell in row]), "Values should all be 1 in row 0"
 
     # Test a cell in row 4
     row = grid.get_row_cells(4)
     assert len(row) == 9
-    assert all([cell.value == 2 for cell in row]), (
-        "Values should all be 2 in row 4"
-    )
+    assert all([cell.value == 2 for cell in row]), "Values should all be 2 in row 4"
 
     # Test a cell in row 8
     row = grid.get_row_cells(8)
     assert len(row) == 9
-    assert all([cell.value == 3 for cell in row]), (
-        "Values should all be 3 in row 8"
-    )
+    assert all([cell.value == 3 for cell in row]), "Values should all be 3 in row 8"
 
 
 def test_get_row_cells_in_block():
@@ -421,23 +415,17 @@ def test_get_row_cells_in_block():
     # Test row 0 top-left block
     row = grid.get_row_cells(0, 0)
     assert len(row) == 3
-    assert all([cell.value == 2 for cell in row]), (
-        "Values should all be 2 in row 0"
-    )
+    assert all([cell.value == 2 for cell in row]), "Values should all be 2 in row 0"
 
     # Test row 4 centre block
     row = grid.get_row_cells(4, 1)
     assert len(row) == 3
-    assert all([cell.value == 4 for cell in row]), (
-        "Values should all be 4 in row 4"
-    )
+    assert all([cell.value == 4 for cell in row]), "Values should all be 4 in row 4"
 
     # Test row 8 bottom-right block
     row = grid.get_row_cells(8, 2)
     assert len(row) == 3
-    assert all([cell.value == 6 for cell in row]), (
-        "Values should all be 6 in row 8"
-    )
+    assert all([cell.value == 6 for cell in row]), "Values should all be 6 in row 8"
 
 
 def test_get_row_cells_with_invalid_row_index():

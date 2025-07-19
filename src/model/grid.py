@@ -1,4 +1,3 @@
-from enum import Enum, auto
 import re
 
 from model.point import Point
@@ -6,11 +5,6 @@ from model.point import Point
 from .cell import Cell
 
 numeric_regex = re.compile(r"^[1-9]$")
-
-
-class Scope(Enum):
-    BLOCK = auto()
-    NONE = auto()
 
 
 class Grid:
