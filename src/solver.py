@@ -1,4 +1,5 @@
 import argparse
+from utils import render_grid
 from model import Grid
 
 parser = argparse.ArgumentParser(
@@ -14,7 +15,7 @@ def run():
         lines = f.readlines()
         grid = Grid.from_rows_notation(lines)
 
-    grid.display()
+    render_grid(grid).show()
 
 
 if __name__ == "__main__":

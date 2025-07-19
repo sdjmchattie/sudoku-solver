@@ -66,63 +66,6 @@ def test_from_rows_notation_creates_empty_cells_for_invalid_values():
             )
 
 
-def test_display_prints_full_grid_correctly(capsys):
-    rows = [
-        "123456789",
-        "987654321",
-        "456789123",
-        "321654987",
-        "654321456",
-        "789123654",
-        "159753486",
-        "753486159",
-        "486159753",
-    ]
-    grid = Grid.from_rows_notation(rows)
-    grid.display()
-
-    captured = capsys.readouterr()
-    expected_output = (
-        "+-------+-------+-------+\n"
-        "| 1 2 3 | 4 5 6 | 7 8 9 |\n"
-        "| 9 8 7 | 6 5 4 | 3 2 1 |\n"
-        "| 4 5 6 | 7 8 9 | 1 2 3 |\n"
-        "+-------+-------+-------+\n"
-        "| 3 2 1 | 6 5 4 | 9 8 7 |\n"
-        "| 6 5 4 | 3 2 1 | 4 5 6 |\n"
-        "| 7 8 9 | 1 2 3 | 6 5 4 |\n"
-        "+-------+-------+-------+\n"
-        "| 1 5 9 | 7 5 3 | 4 8 6 |\n"
-        "| 7 5 3 | 4 8 6 | 1 5 9 |\n"
-        "| 4 8 6 | 1 5 9 | 7 5 3 |\n"
-        "+-------+-------+-------+\n"
-    )
-    assert captured.out == expected_output
-
-
-def test_display_print_empty_grid_correctly(capsys):
-    grid = Grid([[None] * 9] * 9)
-    grid.display()
-
-    captured = capsys.readouterr()
-    expected_output = (
-        "+-------+-------+-------+\n"
-        "| . . . | . . . | . . . |\n"
-        "| . . . | . . . | . . . |\n"
-        "| . . . | . . . | . . . |\n"
-        "+-------+-------+-------+\n"
-        "| . . . | . . . | . . . |\n"
-        "| . . . | . . . | . . . |\n"
-        "| . . . | . . . | . . . |\n"
-        "+-------+-------+-------+\n"
-        "| . . . | . . . | . . . |\n"
-        "| . . . | . . . | . . . |\n"
-        "| . . . | . . . | . . . |\n"
-        "+-------+-------+-------+\n"
-    )
-    assert captured.out == expected_output
-
-
 def test_grid_initialization_with_invalid_size_raises_error():
     with pytest.raises(ValueError) as err:
         Grid([[None] * 8] * 9)  # Invalid row size

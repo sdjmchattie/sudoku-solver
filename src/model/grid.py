@@ -175,22 +175,3 @@ class Grid:
             return cell.coord.y == index and (block is None or cell.block == block)
 
         return {cell for cell in self._grid if predicate(cell)}
-
-    def display(self):
-        """
-        Display the grid in a human-readable format.
-        """
-        for row_index in range(1, 10):
-            if row_index % 3 == 1:
-                print("+" + "-" * 7 + "+" + "-" * 7 + "+" + "-" * 7 + "+")
-
-            for col_index in range(1, 10):
-                if col_index % 3 == 1:
-                    print("|", end=" ")
-
-                cell = self[Point(col_index - 1, row_index - 1)]
-                print(cell.value or ".", end=" ")
-
-            print("|")
-
-        print("+" + "-" * 7 + "+" + "-" * 7 + "+" + "-" * 7 + "+")
