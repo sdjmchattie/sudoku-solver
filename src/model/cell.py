@@ -1,3 +1,6 @@
+from model.point import Point
+
+
 class Cell:
     """
     A class representing a cell in a Sudoku grid.
@@ -7,16 +10,58 @@ class Cell:
         candidates (set): A set of possible candidates for the cell's value.
     """
 
-    def __init__(self, value: int | None = None):
+    def __init__(
+        self,
+        coord: Point,
+        block: Point,
+        coord_in_block: Point,
+        value: int | None = None,
+    ):
         """
         Initializes a Cell instance.
 
         Args:
+            coord (Point): The coordinates of the cell in the grid.
+            block (Point): The coordinates of the cell's 3x3 block.
+            coord_in_block (Point): The coordinates of the cell within its 3x3 block.
             value (int | None): The initial value of the cell. Defaults to None.
         """
+        self._coord = coord
+        self._block = block
+        self._coord_in_block = coord_in_block
         self._value: int | None = None
         self._candidates = set(range(1, 10))
         self.value = value
+
+    @property
+    def coord(self) -> Point:
+        """
+        Returns the coordinates of the cell in the grid.
+
+        Returns:
+            Point: The coordinates of the cell relative to the global grid.
+        """
+        return self._coord
+
+    @property
+    def block(self) -> Point:
+        """
+        Returns the coordinates of the cell's 3x3 block.
+
+        Returns:
+            Point: The coordinates of the cell's block relative to the global grid.
+        """
+        return self._block
+
+    @property
+    def coord_in_block(self) -> Point:
+        """
+        Returns the coordinates of the cell within its 3x3 block.
+
+        Returns:
+            Point: The coordinates of the cell within its block.
+        """
+        return self._coord_in_block
 
     @property
     def value(self) -> int | None:

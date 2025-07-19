@@ -1,21 +1,28 @@
 import pytest
 from model.grid import Grid
+from model.point import Point
 
 
 def test_new_grid_with_none_values_has_empty_cells():
     grid = Grid([[None] * 9] * 9)
 
-    for row in grid._grid:
-        for cell in row:
-            assert cell.value is None
+    assert len(grid._grid) == 81
+
+    for cell in grid._grid:
+        assert cell.value is None
 
 
-def test_new_grid_with_values_has_correct_cell_values():
+def test_new_grid_with_values_has_stored_values():
     grid = Grid([list(range(1, 10)) for _ in range(9)])
 
-    for row in grid._grid:
-        for i, cell in enumerate(row):
-            assert cell.value == i + 1
+    assert len(grid._grid) == 81
+
+    seen_values = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0}
+    for cell in grid._grid:
+        seen_values[cell.value] += 1
+
+    for i in range(1, 10):
+        assert seen_values[i] == 9, f"Value {i} should appear 9 times in the grid."
 
 
 def test_from_rows_notation_creates_grid_with_correct_values():
@@ -32,12 +39,13 @@ def test_from_rows_notation_creates_grid_with_correct_values():
     ]
     grid = Grid.from_rows_notation(rows)
 
-    for i, row in enumerate(grid._grid):
-        for j, cell in enumerate(row):
-            assert cell.value == int(rows[i][j])
+    for cell in grid._grid:
+        assert cell.value == int(rows[cell.coord.y][cell.coord.x]), (
+            f"Cell at {cell.coord} should have value {int(rows[cell.coord.y][cell.coord.x])}"
+        )
 
 
-def test_from_rows_notation_creates_empty_cells_for_non_numeric():
+def test_from_rows_notation_creates_empty_cells_for_invalid_values():
     rows = [
         ".23456789",
         "9;7654321",
@@ -51,12 +59,11 @@ def test_from_rows_notation_creates_empty_cells_for_non_numeric():
     ]
     grid = Grid.from_rows_notation(rows)
 
-    for i, row in enumerate(grid._grid):
-        for j, cell in enumerate(row):
-            if i == j:
-                assert cell.value is None
-            else:
-                assert cell.value == int(rows[i][j])
+    for cell in grid._grid:
+        if cell.coord.x == cell.coord.y:
+            assert cell.value is None, (
+                f"Cell at {cell.coord} should be empty, but has value {cell.value}"
+            )
 
 
 def test_display_prints_full_grid_correctly(capsys):
@@ -155,10 +162,11 @@ def test_iteration_over_grid_cells():
     cells = list(grid)
     assert len(cells) == 81
 
-    for i, (row, col, cell) in enumerate(cells):
-        assert cell.value == int(rows[row][col])
-        assert row == i // 9
-        assert col == i % 9
+    for cell in grid:
+        assert cell.value == int(rows[cell.coord.y][cell.coord.x]), (
+            f"Cell at {cell.coord} should have value {int(rows[cell.coord.y][cell.coord.x])}"
+        )
+
 
 def test_indexing_grid_cells():
     rows = [
@@ -176,23 +184,18 @@ def test_indexing_grid_cells():
 
     for row in range(9):
         for col in range(9):
-            assert grid[row, col].value == int(rows[row][col])
+            assert grid[Point(col, row)].value == int(rows[row][col]), (
+                f"Cell at ({col}, {row}) should have value {int(rows[row][col])}"
+            )
 
 
-def test_indexing_invalid_cells_raises_error():
+def test_indexing_invalid_cells_returns_none():
     grid = Grid([[None] * 9] * 9)
 
-    with pytest.raises(IndexError):
-        _ = grid[9, 0]  # Row index out of bounds
-
-    with pytest.raises(IndexError):
-        _ = grid[0, 9]  # Column index out of bounds
-
-    with pytest.raises(IndexError):
-        _ = grid[-1, 0]  # Negative row index
-
-    with pytest.raises(IndexError):
-        _ = grid[0, -1]  # Negative column index
+    assert grid[Point(0, 9)] is None  # Row index out of bounds
+    assert grid[Point(9, 0)] is None  # Column index out of bounds
+    assert grid[Point(0, -1)] is None  # Negative row index
+    assert grid[Point(-1, 0)] is None  # Negative column index
 
 
 def test_get_neighbours():
@@ -209,161 +212,243 @@ def test_get_neighbours():
     ]
     grid = Grid.from_rows_notation(rows)
 
-    # Test the cell at [4, 3]
-    neighbours = grid.get_neighbours(4, 3)
+    cell = grid[Point(3, 4)]
+    neighbours = grid.get_neighbours(cell)
     assert len(neighbours) == 20
-    assert all([cell.value == 1 for cell in neighbours]), "Values should all be 1 for neighbours of [4, 3]"
+    print(f"Neighbours of {cell.coord}: {[n.value for n in neighbours]}")
+    assert all([cell.value == 1 for cell in neighbours]), (
+        "Values should all be 1 for neighbours of [3, 4]"
+    )
 
 
-def test_get_neightbours_with_invalid_indices():
+def test_get_neighbours_with_invalid_indices():
     grid = Grid([[None] * 9] * 9)
 
-    with pytest.raises(IndexError):
-        _ = grid.get_neighbours(9, 0)  # Row index out of bounds
+    with pytest.raises(ValueError):
+        _ = grid.get_neighbours(grid[Point(9, 0)])  # Row index out of bounds
 
-    with pytest.raises(IndexError):
-        _ = grid.get_neighbours(0, 9)  # Column index out of bounds
+    with pytest.raises(ValueError):
+        _ = grid.get_neighbours(grid[Point(0, 9)])  # Column index out of bounds
 
-    with pytest.raises(IndexError):
-        _ = grid.get_neighbours(-1, 0)  # Negative row index
+    with pytest.raises(ValueError):
+        _ = grid.get_neighbours(grid[Point(0, -1)])  # Negative row index
 
-    with pytest.raises(IndexError):
-        _ = grid.get_neighbours(0, -1)  # Negative column index
+    with pytest.raises(ValueError):
+        _ = grid.get_neighbours(grid[Point(-1, 0)])  # Negative column index
 
 
-def test_get_block_neighbours():
+def test_get_block_cells():
     rows = [
-        "511999999",
+        "111999999",
         "111999999",
         "111999999",
         "999222999",
-        "999252999",
+        "999222999",
         "999222999",
         "999999333",
         "999999333",
-        "999999335",
+        "999999333",
     ]
     grid = Grid.from_rows_notation(rows)
 
     # Test a cell in the top-left block
-    neighbours = grid.get_block_neighbours(0, 0)
-    assert len(neighbours) == 8
-    assert all([cell.value == 1 for cell in neighbours]), "Values should all be 1 in the top-left block"
+    block = grid.get_block_cells(Point(0, 0))
+    assert len(block) == 9
+    assert all([cell.value == 1 for cell in block]), (
+        "Values should all be 1 in the top-left block"
+    )
 
     # Test a cell in the center block
-    neighbours = grid.get_block_neighbours(4, 4)
-    assert len(neighbours) == 8
-    assert all([cell.value == 2 for cell in neighbours]), "Values should all be 2 in the center block"
+    block = grid.get_block_cells(Point(1, 1))
+    assert len(block) == 9
+    assert all([cell.value == 2 for cell in block]), (
+        "Values should all be 2 in the center block"
+    )
 
     # Test a cell in the bottom-right block
-    neighbours = grid.get_block_neighbours(8, 8)
-    assert len(neighbours) == 8
-    assert all([cell.value == 3 for cell in neighbours]), "Values should all be 3 in the bottom-right block"
+    block = grid.get_block_cells(Point(2, 2))
+    assert len(block) == 9
+    assert all([cell.value == 3 for cell in block]), (
+        "Values should all be 3 in the bottom-right block"
+    )
 
 
-def test_get_block_neightbours_with_invalid_indices():
+def test_get_block_cells_with_invalid_coordinates():
     grid = Grid([[None] * 9] * 9)
 
-    with pytest.raises(IndexError):
-        _ = grid.get_block_neighbours(9, 0)  # Row index out of bounds
-
-    with pytest.raises(IndexError):
-        _ = grid.get_block_neighbours(0, 9)  # Column index out of bounds
-
-    with pytest.raises(IndexError):
-        _ = grid.get_block_neighbours(-1, 0)  # Negative row index
-
-    with pytest.raises(IndexError):
-        _ = grid.get_block_neighbours(0, -1)  # Negative column index
+    assert len(grid.get_block_cells(Point(3, 0))) == 0  # Block x coordinate too high
+    assert len(grid.get_block_cells(Point(0, 3))) == 0  # Block y coordinate too high
+    assert len(grid.get_block_cells(Point(-1, 0))) == 0  # Block x coordinate too low
+    assert len(grid.get_block_cells(Point(0, -1))) == 0  # Block x coordinate too low
 
 
-def test_get_col_neighbours():
+def test_get_column_cells_no_block():
     rows = [
-        "599929993",
         "199929993",
         "199929993",
         "199929993",
-        "199959993",
         "199929993",
         "199929993",
         "199929993",
-        "199929995",
+        "199929993",
+        "199929993",
+        "199929993",
     ]
     grid = Grid.from_rows_notation(rows)
 
-    # Test a cell in column 0
-    neighbours = grid.get_col_neighbours(0, 0)
-    assert len(neighbours) == 8
-    assert all([cell.value == 1 for cell in neighbours]), "Values should all be 1 in column 0"
+    # Test column 0
+    column = grid.get_column_cells(0)
+    assert len(column) == 9
+    assert all([cell.value == 1 for cell in column]), (
+        "Values should all be 1 in column 0"
+    )
 
-    # Test a cell in column 4
-    neighbours = grid.get_col_neighbours(4, 4)
-    assert len(neighbours) == 8
-    assert all([cell.value == 2 for cell in neighbours]), "Values should all be 2 in column 4"
+    # Test column 4
+    column = grid.get_column_cells(4)
+    assert len(column) == 9
+    assert all([cell.value == 2 for cell in column]), (
+        "Values should all be 2 in column 4"
+    )
 
-    # Test a cell in column 8
-    neighbours = grid.get_col_neighbours(8, 8)
-    assert len(neighbours) == 8
-    assert all([cell.value == 3 for cell in neighbours]), "Values should all be 3 in column 8"
+    # Test column 8
+    column = grid.get_column_cells(8)
+    assert len(column) == 9
+    assert all([cell.value == 3 for cell in column]), (
+        "Values should all be 3 in column 8"
+    )
 
 
-def test_get_col_neightbours_with_invalid_indices():
+def test_get_column_cells_in_block():
+    rows = [
+        "299939995",
+        "299939995",
+        "299939995",
+        "199949995",
+        "199949995",
+        "199949995",
+        "199939996",
+        "199939996",
+        "199939996",
+    ]
+    grid = Grid.from_rows_notation(rows)
+
+    # Test column 0 top-left block
+    column = grid.get_column_cells(0, 0)
+    assert len(column) == 3
+    assert all([cell.value == 2 for cell in column]), (
+        "Values should all be 2 in column 0"
+    )
+
+    # Test column 4 centre block
+    column = grid.get_column_cells(4, 1)
+    assert len(column) == 3
+    assert all([cell.value == 4 for cell in column]), (
+        "Values should all be 4 in column 4"
+    )
+
+    # Test column 8 bottom-right block
+    column = grid.get_column_cells(8, 2)
+    assert len(column) == 3
+    assert all([cell.value == 6 for cell in column]), (
+        "Values should all be 6 in column 8"
+    )
+
+
+def test_get_column_cells_with_invalid_index():
     grid = Grid([[None] * 9] * 9)
 
-    with pytest.raises(IndexError):
-        _ = grid.get_col_neighbours(9, 0)  # Row index out of bounds
-
-    with pytest.raises(IndexError):
-        _ = grid.get_col_neighbours(0, 9)  # Column index out of bounds
-
-    with pytest.raises(IndexError):
-        _ = grid.get_col_neighbours(-1, 0)  # Negative row index
-
-    with pytest.raises(IndexError):
-        _ = grid.get_col_neighbours(0, -1)  # Negative column index
+    assert len(grid.get_column_cells(9)) == 0  # Column index too high
+    assert len(grid.get_column_cells(-1)) == 0  # Column index too low
 
 
-def test_get_row_neighbours():
+def test_get_column_cells_with_invalid_block():
+    grid = Grid([[None] * 9] * 9)
+
+    assert len(grid.get_column_cells(0, 3)) == 0  # Block index too high
+    assert len(grid.get_column_cells(0, -1)) == 0  # Block index too low
+
+
+def test_get_row_cells_no_block():
     rows = [
-        "511111111",
+        "111111111",
         "999999999",
         "999999999",
         "999999999",
-        "222252222",
+        "222222222",
         "999999999",
         "999999999",
         "999999999",
-        "333333335",
+        "333333333",
     ]
     grid = Grid.from_rows_notation(rows)
 
     # Test a cell in row 0
-    neighbours = grid.get_row_neighbours(0, 0)
-    assert len(neighbours) == 8
-    assert all([cell.value == 1 for cell in neighbours]), "Values should all be 1 in row 0"
+    row = grid.get_row_cells(0)
+    assert len(row) == 9
+    assert all([cell.value == 1 for cell in row]), (
+        "Values should all be 1 in row 0"
+    )
 
     # Test a cell in row 4
-    neighbours = grid.get_row_neighbours(4, 4)
-    assert len(neighbours) == 8
-    assert all([cell.value == 2 for cell in neighbours]), "Values should all be 2 in row 4"
+    row = grid.get_row_cells(4)
+    assert len(row) == 9
+    assert all([cell.value == 2 for cell in row]), (
+        "Values should all be 2 in row 4"
+    )
 
     # Test a cell in row 8
-    neighbours = grid.get_row_neighbours(8, 8)
-    assert len(neighbours) == 8
-    assert all([cell.value == 3 for cell in neighbours]), "Values should all be 3 in row 8"
+    row = grid.get_row_cells(8)
+    assert len(row) == 9
+    assert all([cell.value == 3 for cell in row]), (
+        "Values should all be 3 in row 8"
+    )
 
 
-def test_get_row_neightbours_with_invalid_indices():
+def test_get_row_cells_in_block():
+    rows = [
+        "222111111",
+        "999999999",
+        "999999999",
+        "999999999",
+        "333444333",
+        "999999999",
+        "999999999",
+        "999999999",
+        "555555666",
+    ]
+    grid = Grid.from_rows_notation(rows)
+
+    # Test row 0 top-left block
+    row = grid.get_row_cells(0, 0)
+    assert len(row) == 3
+    assert all([cell.value == 2 for cell in row]), (
+        "Values should all be 2 in row 0"
+    )
+
+    # Test row 4 centre block
+    row = grid.get_row_cells(4, 1)
+    assert len(row) == 3
+    assert all([cell.value == 4 for cell in row]), (
+        "Values should all be 4 in row 4"
+    )
+
+    # Test row 8 bottom-right block
+    row = grid.get_row_cells(8, 2)
+    assert len(row) == 3
+    assert all([cell.value == 6 for cell in row]), (
+        "Values should all be 6 in row 8"
+    )
+
+
+def test_get_row_cells_with_invalid_row_index():
     grid = Grid([[None] * 9] * 9)
 
-    with pytest.raises(IndexError):
-        _ = grid.get_row_neighbours(9, 0)  # Row index out of bounds
+    assert len(grid.get_row_cells(9)) == 0  # Row index too high
+    assert len(grid.get_row_cells(-1)) == 0  # Row index too low
 
-    with pytest.raises(IndexError):
-        _ = grid.get_row_neighbours(0, 9)  # Column index out of bounds
 
-    with pytest.raises(IndexError):
-        _ = grid.get_row_neighbours(-1, 0)  # Negative row index
+def test_get_row_cells_with_invalid_block_index():
+    grid = Grid([[None] * 9] * 9)
 
-    with pytest.raises(IndexError):
-        _ = grid.get_row_neighbours(0, -1)  # Negative column index
+    assert len(grid.get_row_cells(0, 3)) == 0  # Block index too high
+    assert len(grid.get_row_cells(0, -1)) == 0  # Block index too low
