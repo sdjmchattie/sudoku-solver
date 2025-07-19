@@ -27,13 +27,42 @@ class Grid:
         if len(values) != 9 or any(len(row) != 9 for row in values):
             raise ValueError("Grid must be 9x9.")
 
-        grid = []
+        grid: list[list[Cell]] = []
         for row in values:
             grid_row = []
             for value in row:
                 grid_row.append(Cell(value))
             grid.append(grid_row)
         self._grid = grid
+
+    def __iter__(self):
+        """
+        Iterate over the Cells of the grid.
+
+        Returns:
+            iterator: An iterator over the Cells of the grid.
+                The iterator yields tuples of (row_index, column_index, Cell).
+        """
+        return (
+            (irow, icol, cell)
+            for irow, row in enumerate(self._grid)
+            for icol, cell in enumerate(row)
+        )
+
+    def __getitem__(self, item: tuple[int, int]) -> Cell:
+        """
+        Get the Cell at the specified row and column indices.
+
+        Args:
+            item (tuple[int, int]): A tuple containing the row and column indices.
+
+        Returns:
+            Cell: The Cell object at the specified indices.
+        """
+        row, col = item
+        self._validate_index(row, col)
+
+        return self._grid[row][col]
 
     @classmethod
     def from_rows_notation(self, rows: list[str]) -> "Grid":
@@ -53,6 +82,93 @@ class Grid:
             )
 
         return Grid(values)
+
+    def _validate_index(self, row: int, col: int):
+        """
+        Validate the row and column indices to ensure they are within the grid bounds.
+
+        Args:
+            row (int): The row index.
+            col (int): The column index.
+
+        Raises:
+            IndexError: If the row or column index is out of bounds.
+        """
+        if not (0 <= row < 9 and 0 <= col < 9):
+            raise IndexError("Row and column indices must be between 0 and 8.")
+
+    def get_neighbours(self, row: int, col: int) -> set[Cell]:
+        """
+        Get the 20 neighbouring cells of a specified cell in the grid.
+        Neighbours include cells in the same row, column, and 3x3 block.
+
+        Args:
+            row (int): The row index of the cell.
+            col (int): The column index of the cell.
+
+        Returns:
+            set[Cell]: A set of 20 Cell objects that are neighbours to the specified cell.
+        """
+        self._validate_index(row, col)
+
+        return (
+            self.get_block_neighbours(row, col)
+            .union(self.get_col_neighbours(row, col))
+            .union(self.get_row_neighbours(row, col))
+        )
+
+    def get_block_neighbours(self, row: int, col: int) -> set[Cell]:
+        """
+        Get the 8 neighbouring cells in the same 3x3 block as the specified cell.
+
+        Args:
+            row (int): The row index of the cell.
+            col (int): The column index of the cell.
+
+        Returns:
+            set[Cell]: A set of 8 Cell objects in the same 3x3 block.
+        """
+        self._validate_index(row, col)
+
+        block_row_start = (row // 3) * 3
+        block_col_start = (col // 3) * 3
+        neighbours = set()
+
+        for r in range(block_row_start, block_row_start + 3):
+            for c in range(block_col_start, block_col_start + 3):
+                if r != row or c != col:
+                    neighbours.add(self[r, c])
+
+        return neighbours
+
+    def get_col_neighbours(self, row: int, col: int) -> set[Cell]:
+        """
+        Get the 8 neighbouring cells in the same column.
+
+        Args:
+            row (int): The row index of the cell.
+            col (int): The column index of the cell.
+
+        Returns:
+            set[Cell]: A set of 8 Cell objects in the same column.
+        """
+        self._validate_index(row, col)
+
+        return {self[irow, col] for irow in range(9) if irow != row}
+
+    def get_row_neighbours(self, row: int, col: int) -> set[Cell]:
+        """
+        Get the 8 neighbouring cells in the same row.
+
+        Args:
+            row (int): The row index of the cell.
+
+        Returns:
+            set[Cell]: A set of 8 Cell objects in the same row.
+        """
+        self._validate_index(row, col)
+
+        return {cell for icol, cell in enumerate(self._grid[row]) if icol != col}
 
     def display(self):
         """
