@@ -1,8 +1,9 @@
+from model.grid import Grid
 from model.point import Point
 from PIL import Image, ImageDraw, ImageFont
 
 
-def display_grid(grid):
+def display_grid(grid: Grid):
     """
     Display the grid in a human-readable format directly to standard output.
     """
@@ -22,13 +23,26 @@ def display_grid(grid):
     print("+" + "-" * 7 + "+" + "-" * 7 + "+" + "-" * 7 + "+")
 
 
-def render_grid(grid):
+def render_grid(grid: Grid) -> Image.Image:
     """
     Get a PNG version of the grid.
     """
     # Create a blank image with white background
     img = Image.new("RGB", (470, 470), "white")
     draw = ImageDraw.Draw(img)
+
+    # Draw checkerboard pattern behind blocks and cells.
+    for i in range(9):
+        for j in range(9):
+            shade = 256
+            if (i + j) % 2 == 0:
+                shade -= 16
+            if (i // 3 + j // 3) % 2 == 0:
+                shade -= 16
+            draw.rectangle(
+                [10 + i * 50, 10 + j * 50, 60 + i * 50, 60 + j * 50],
+                fill=(shade, shade, shade),
+            )
 
     # Draw grid lines
     for i in range(0, 10):
