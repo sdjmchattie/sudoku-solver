@@ -1,5 +1,5 @@
 from model.grid import Grid
-from rules.single_candidate_solver import solve_single_candidates
+from rules import solve_single_candidates
 
 
 class Solver:
