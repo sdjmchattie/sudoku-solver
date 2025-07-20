@@ -16,7 +16,10 @@ def display_grid(grid: Grid):
                 print("|", end=" ")
 
             cell = grid[Point(col_index - 1, row_index - 1)]
-            print(cell.value or ".", end=" ")
+            if cell is None or cell.value is None:
+                print(".", end=" ")
+            else:
+                print(cell.value, end=" ")
 
         print("|")
 
