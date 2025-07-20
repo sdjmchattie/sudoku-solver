@@ -1,5 +1,4 @@
-from model.cell import Cell
-from model.grid import Grid
+from model import Cell, Grid
 
 
 def set_cell_value(grid: Grid, cell: Cell, value: int) -> None:
