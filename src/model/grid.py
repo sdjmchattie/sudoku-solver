@@ -134,7 +134,7 @@ class Grid:
         Returns:
             set[Cell]: A set of 9 Cell objects in the same 3x3 block, or zero items if the block doesn't exist.
         """
-        return {cell for cell in self._grid if cell.block == block}
+        return {cell for cell in self if cell.block == block}
 
     def get_column_cells(self, index: int, block_index: int | None = None) -> set[Cell]:
         """
@@ -154,7 +154,7 @@ class Grid:
         def predicate(cell: Cell) -> bool:
             return cell.coord.x == index and (block is None or cell.block == block)
 
-        return {cell for cell in self._grid if predicate(cell)}
+        return {cell for cell in self if predicate(cell)}
 
     def get_row_cells(self, index: int, block_index: int | None = None) -> set[Cell]:
         """
@@ -174,4 +174,4 @@ class Grid:
         def predicate(cell: Cell) -> bool:
             return cell.coord.y == index and (block is None or cell.block == block)
 
-        return {cell for cell in self._grid if predicate(cell)}
+        return {cell for cell in self if predicate(cell)}
