@@ -8,7 +8,9 @@ version = "0.1.0"
 description = "A Sudoku solver which applies rules the same way a human would."
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "pillow>=11.3.0",
+]
 
 [dependency-groups]
 dev = [
@@ -18,4 +20,4 @@ dev = [
 ]
 
 [project.scripts]
-sudoku-solver = "solver:run"
+sudoku-solver = "runner:run"

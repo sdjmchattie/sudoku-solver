@@ -16,6 +16,7 @@ class Grid:
             values (list): A 2D list of integers representing the grid.
         """
         self._create_grid(values)
+        self._initialize_candidates()
 
     def _create_grid(self, values: list[list[int | None]]):
         """
@@ -42,6 +43,22 @@ class Grid:
                 )
 
         self._grid = grid
+
+    def _initialize_candidates(self):
+        """
+        Initialize candidates for each cell in the grid.
+        i.e. start with all possible values (1-9) for each cell.
+        Remove candidate values based on the neighbouring cells with definite values.
+        Cells that already have a value are skipped.
+        """
+        for cell in self:
+            if cell.value is not None:
+                continue
+
+            cell.candidates = set(range(1, 10))
+            neighbours = self.get_neighbours(cell)
+            n_values = {n.value for n in neighbours if n.value is not None}
+            cell.candidates -= n_values
 
     def __iter__(self):
         """
@@ -117,7 +134,7 @@ class Grid:
         Returns:
             set[Cell]: A set of 9 Cell objects in the same 3x3 block, or zero items if the block doesn't exist.
         """
-        return {cell for cell in self._grid if cell.block == block}
+        return {cell for cell in self if cell.block == block}
 
     def get_column_cells(self, index: int, block_index: int | None = None) -> set[Cell]:
         """
@@ -137,7 +154,7 @@ class Grid:
         def predicate(cell: Cell) -> bool:
             return cell.coord.x == index and (block is None or cell.block == block)
 
-        return {cell for cell in self._grid if predicate(cell)}
+        return {cell for cell in self if predicate(cell)}
 
     def get_row_cells(self, index: int, block_index: int | None = None) -> set[Cell]:
         """
@@ -157,23 +174,4 @@ class Grid:
         def predicate(cell: Cell) -> bool:
             return cell.coord.y == index and (block is None or cell.block == block)
 
-        return {cell for cell in self._grid if predicate(cell)}
-
-    def display(self):
-        """
-        Display the grid in a human-readable format.
-        """
-        for row_index in range(1, 10):
-            if row_index % 3 == 1:
-                print("+" + "-" * 7 + "+" + "-" * 7 + "+" + "-" * 7 + "+")
-
-            for col_index in range(1, 10):
-                if col_index % 3 == 1:
-                    print("|", end=" ")
-
-                cell = self[Point(col_index - 1, row_index - 1)]
-                print(cell.value or ".", end=" ")
-
-            print("|")
-
-        print("+" + "-" * 7 + "+" + "-" * 7 + "+" + "-" * 7 + "+")
+        return {cell for cell in self if predicate(cell)}
