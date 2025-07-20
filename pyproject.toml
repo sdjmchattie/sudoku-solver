@@ -20,4 +20,4 @@ dev = [
 ]
 
 [project.scripts]
-sudoku-solver = "solver:run"
+sudoku-solver = "runner:run"
