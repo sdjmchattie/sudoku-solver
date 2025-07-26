@@ -26,7 +26,7 @@ def display_grid(grid: Grid):
     print("+" + "-" * 7 + "+" + "-" * 7 + "+" + "-" * 7 + "+")
 
 
-def render_grid(grid: Grid) -> Image.Image:
+def render_grid(grid: Grid, include_candidates: bool = True) -> Image.Image:
     """
     Get a PNG version of the grid.
     """
@@ -64,7 +64,7 @@ def render_grid(grid: Grid) -> Image.Image:
             draw.text(
                 (x, y), str(cell.value), fill="black", font=large_font, align="center"
             )
-        else:
+        elif include_candidates:
             for candidate in cell.candidates:
                 candidate_x = x - 6 + (candidate - 1) % 3 * 12
                 candidate_y = y + (candidate - 1) // 3 * 14
