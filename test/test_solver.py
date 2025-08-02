@@ -57,6 +57,90 @@ def test_solve_applies_single_candidates(
     mock_single_candidates.assert_has_calls([call(grid), call(grid), call(grid)])
     assert mock_single_candidates.call_count == 3
 
+def test_solve_applies_naked_pairs(
+    mock_single_candidates, mock_naked_pairs, mock_naked_triples
+):
+    mock_single_candidates.return_value = False
+    mock_naked_pairs.side_effect = [True, True, False]
+    mock_naked_triples.return_value = False
+
+    grid = Grid.from_rows_notation(
+        [
+            ".7.2.8.31",
+            "48.3.7...",
+            "9.3..4758",
+            ".4687...3",
+            "89..3.56.",
+            "..792.81.",
+            "754.12...",
+            "...7.3145",
+            "3.8.4.2.6",
+        ]
+    )
+    solver = Solver(grid)
+
+    solver.solve()
+
+    mock_naked_pairs.assert_has_calls([call(grid), call(grid), call(grid)])
+    assert mock_naked_pairs.call_count == 3
+
+
+def test_solve_applies_naked_triples(
+    mock_single_candidates, mock_naked_pairs, mock_naked_triples
+):
+    mock_single_candidates.return_value = False
+    mock_naked_pairs.return_value = False
+    mock_naked_triples.side_effect = [True, True, False]
+
+    grid = Grid.from_rows_notation(
+        [
+            ".7.2.8.31",
+            "48.3.7...",
+            "9.3..4758",
+            ".4687...3",
+            "89..3.56.",
+            "..792.81.",
+            "754.12...",
+            "...7.3145",
+            "3.8.4.2.6",
+        ]
+    )
+    solver = Solver(grid)
+
+    solver.solve()
+
+    mock_naked_triples.assert_has_calls([call(grid), call(grid), call(grid)])
+    assert mock_naked_triples.call_count == 3
+
+
+def test_solve_only_applies_latter_rules_when_earlier_rules_fail(
+    mock_single_candidates, mock_naked_pairs, mock_naked_triples
+):
+    mock_single_candidates.side_effect = [True, False] * 4
+    mock_naked_pairs.side_effect = [True, False] * 2
+    mock_naked_triples.side_effect = [True, False]
+
+    grid = Grid.from_rows_notation(
+        [
+            ".7.2.8.31",
+            "48.3.7...",
+            "9.3..4758",
+            ".4687...3",
+            "89..3.56.",
+            "..792.81.",
+            "754.12...",
+            "...7.3145",
+            "3.8.4.2.6",
+        ]
+    )
+    solver = Solver(grid)
+
+    solver.solve()
+
+    assert mock_single_candidates.call_count == 8
+    assert mock_naked_pairs.call_count == 4
+    assert mock_naked_triples.call_count == 2
+
 
 def test_is_solved_returns_true_when_all_cells_have_values():
     grid = Grid.from_rows_notation(
