@@ -2,7 +2,7 @@ from model import Grid, Point
 from rules.single_candidate_rule import apply_single_candidate_rule
 
 
-def test_solve_single_candidates_inserts_values_for_single_candidates():
+def test_apply_single_candidate_rule_inserts_values_for_single_candidates():
     grid = Grid.from_rows_notation(
         [
             "12.456789",  # Should be a 3
@@ -30,7 +30,7 @@ def test_solve_single_candidates_inserts_values_for_single_candidates():
     assert grid[Point(6, 8)].value == 6
 
 
-def test_solve_single_candidates_returns_true_when_able_to_solve_at_least_one_cell():
+def test_apply_single_candidate_rule_returns_true_when_able_to_solve_at_least_one_cell():
     grid = Grid.from_rows_notation(
         [
             "12.456789",
@@ -48,7 +48,7 @@ def test_solve_single_candidates_returns_true_when_able_to_solve_at_least_one_ce
     assert apply_single_candidate_rule(grid) is True
 
 
-def test_solve_single_candidates_returns_false_when_no_single_candidates():
+def test_apply_single_candidate_rule_returns_false_when_no_single_candidates():
     grid = Grid.from_rows_notation(  # All 5s and 9s missing.
         [
             "1234.678.",

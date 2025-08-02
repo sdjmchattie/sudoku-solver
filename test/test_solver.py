@@ -57,6 +57,7 @@ def test_solve_applies_single_candidates(
     mock_single_candidates.assert_has_calls([call(grid), call(grid), call(grid)])
     assert mock_single_candidates.call_count == 3
 
+
 def test_solve_applies_naked_pairs(
     mock_single_candidates, mock_naked_pairs, mock_naked_triples
 ):
