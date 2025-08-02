@@ -2,7 +2,7 @@ from model.grid import Grid
 from rules.set_cell_value import set_cell_value
 
 
-def solve_single_candidates(grid: Grid) -> bool:
+def apply_single_candidate_rule(grid: Grid) -> bool:
     """
     Solve all possible cells using the single candidate rule.
 

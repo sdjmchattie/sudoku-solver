@@ -1,4 +1,5 @@
 import re
+from typing import Iterator
 
 from model.point import Point
 
@@ -123,6 +124,22 @@ class Grid:
             .union(self.get_row_cells(cell.coord.y))
             .difference({cell})  # Exclude the cell itself
         )
+
+    def region_iter(self) -> Iterator[set[Cell]]:
+        """
+        Get an iterator over all possible regions in the grid.
+        A region is one of a 3x3 block, a columns, or a row in the grid.
+
+        Returns:
+            Iterator[set[Cell]]: An iterator over sets containing every region of 9 cells in the grid.
+        """
+        for i in range(9):
+            yield self.get_row_cells(i)
+            yield self.get_column_cells(i)
+
+        for i in range(3):
+            for j in range(3):
+                yield self.get_block_cells(Point(i, j))
 
     def get_block_cells(self, block: Point) -> set[Cell]:
         """

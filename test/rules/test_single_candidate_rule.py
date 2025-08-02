@@ -1,5 +1,5 @@
 from model import Grid, Point
-from rules import solve_single_candidates
+from rules.single_candidate_rule import apply_single_candidate_rule
 
 
 def test_solve_single_candidates_inserts_values_for_single_candidates():
@@ -17,7 +17,7 @@ def test_solve_single_candidates_inserts_values_for_single_candidates():
         ]
     )
 
-    solve_single_candidates(grid)
+    apply_single_candidate_rule(grid)
 
     assert grid[Point(2, 0)].value == 3
     assert grid[Point(1, 1)].value == 5
@@ -45,7 +45,7 @@ def test_solve_single_candidates_returns_true_when_able_to_solve_at_least_one_ce
         ]
     )
 
-    assert solve_single_candidates(grid) is True
+    assert apply_single_candidate_rule(grid) is True
 
 
 def test_solve_single_candidates_returns_false_when_no_single_candidates():
@@ -63,7 +63,7 @@ def test_solve_single_candidates_returns_false_when_no_single_candidates():
         ]
     )
 
-    assert solve_single_candidates(grid) is False
+    assert apply_single_candidate_rule(grid) is False
 
 
 def test_solve_single_candidates_returns_false_when_grid_complete():
@@ -81,4 +81,4 @@ def test_solve_single_candidates_returns_false_when_grid_complete():
         ]
     )
 
-    assert solve_single_candidates(grid) is False
+    assert apply_single_candidate_rule(grid) is False

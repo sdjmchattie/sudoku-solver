@@ -1,5 +1,9 @@
 from model.grid import Grid
-from rules import solve_single_candidates
+from rules import (
+    apply_naked_pairs_rule,
+    apply_naked_triples_rule,
+    apply_single_candidate_rule,
+)
 
 
 class Solver:
@@ -14,10 +18,14 @@ class Solver:
     def solve(self):
         """Solve the Sudoku puzzle using a cycle of rules until no more rules can be applied."""
         while True:
-            applied = False
-
-            # Apply rules
-            applied |= solve_single_candidates(self.grid)
+            # Apply rules, stopping after the first successful application.
+            # This ensures we always apply the simplest rules first.
+            # This can help with efficiency where complex rules take more CPU cycles to apply.
+            applied = (
+                apply_single_candidate_rule(self.grid)
+                or apply_naked_pairs_rule(self.grid)
+                or apply_naked_triples_rule(self.grid)
+            )
 
             # If no rules were applied, we cannot proceed further
             if not applied:

@@ -5,10 +5,21 @@ from model import Grid
 from solver import Solver
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture
 def mock_single_candidates():
-    with patch("solver.solve_single_candidates") as mock:
-        mock.side_effect = [True, True, False]
+    with patch("solver.apply_single_candidate_rule") as mock:
+        yield mock
+
+
+@pytest.fixture
+def mock_naked_pairs():
+    with patch("solver.apply_naked_pairs_rule") as mock:
+        yield mock
+
+
+@pytest.fixture
+def mock_naked_triples():
+    with patch("solver.apply_naked_triples_rule") as mock:
         yield mock
 
 
@@ -19,7 +30,13 @@ def test_init_stores_grid():
     assert solver.grid is grid
 
 
-def test_solve_applies_single_candidates(mock_single_candidates):
+def test_solve_applies_single_candidates(
+    mock_single_candidates, mock_naked_pairs, mock_naked_triples
+):
+    mock_single_candidates.side_effect = [True, True, False]
+    mock_naked_pairs.return_value = False
+    mock_naked_triples.return_value = False
+
     grid = Grid.from_rows_notation(
         [
             ".7.2.8.31",
