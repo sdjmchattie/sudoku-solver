@@ -282,6 +282,23 @@ def test_get_neighbours_with_invalid_indices():
         _ = grid.get_neighbours(grid[Point(-1, 0)])  # Negative column index
 
 
+def test_region_iter_returns_all_regions():
+    rows = ["123456789"] * 9
+    grid = Grid.from_rows_notation(rows)
+
+    expected_regions = (
+        [grid.get_row_cells(i) for i in range(9)]
+        + [grid.get_column_cells(i) for i in range(9)]
+        + [grid.get_block_cells(Point(i, j)) for i in range(3) for j in range(3)]
+    )
+    actual_regions = list(grid.region_iter())
+
+    assert len(actual_regions) == 27, "There should be 27 regions in total."
+    assert all(region in expected_regions for region in actual_regions), (
+        "The regions returned by region_iter() do not match the expected regions."
+    )
+
+
 def test_get_block_cells():
     rows = [
         "111999999",
