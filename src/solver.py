@@ -1,5 +1,8 @@
 from model.grid import Grid
 from rules import (
+    apply_hidden_single_rule,
+    apply_hidden_pairs_rule,
+    apply_hidden_triples_rule,
     apply_naked_pairs_rule,
     apply_naked_triples_rule,
     apply_single_candidate_rule,
@@ -25,6 +28,9 @@ class Solver:
                 apply_single_candidate_rule(self.grid)
                 or apply_naked_pairs_rule(self.grid)
                 or apply_naked_triples_rule(self.grid)
+                or apply_hidden_single_rule(self.grid)
+                or apply_hidden_pairs_rule(self.grid)
+                or apply_hidden_triples_rule(self.grid)
             )
 
             # If no rules were applied, we cannot proceed further
