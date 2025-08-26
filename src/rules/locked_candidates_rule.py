@@ -28,9 +28,13 @@ def apply_locked_candidates_rule(grid: Grid) -> bool:
     """
     applied = False
 
-    for (intersection, block, colrow) in _intersection_iter(grid):
-        intersection_candidates = { candidate for cell in intersection for candidate in cell.candidates }
-        block_candidates = { candidate for cell in block for candidate in cell.candidates }
+    for intersection, block, colrow in _intersection_iter(grid):
+        intersection_candidates = {
+            candidate for cell in intersection for candidate in cell.candidates
+        }
+        block_candidates = {
+            candidate for cell in block for candidate in cell.candidates
+        }
         valid_candidates = intersection_candidates.difference(block_candidates)
         for cell in colrow:
             if cell.value is not None:
@@ -39,7 +43,9 @@ def apply_locked_candidates_rule(grid: Grid) -> bool:
             applied |= len(cell.candidates.intersection(valid_candidates)) > 0
             cell.candidates = cell.candidates.difference(valid_candidates)
 
-        colrow_candidates = { candidate for cell in colrow for candidate in cell.candidates }
+        colrow_candidates = {
+            candidate for cell in colrow for candidate in cell.candidates
+        }
         valid_candidates = intersection_candidates.difference(colrow_candidates)
         for cell in block:
             if cell.value is not None:
