@@ -41,6 +41,12 @@ def mock_hidden_triples():
         yield mock
 
 
+@pytest.fixture
+def mock_locked_candidates():
+    with patch("solver.apply_locked_candidates_rule") as mock:
+        yield mock
+
+
 def test_init_stores_grid():
     grid = Grid([[1, 2, 3, 4, 5, 6, 7, 8, 9]] * 9)
     solver = Solver(grid)
@@ -55,6 +61,7 @@ def test_solve_applies_single_candidates(
     mock_hidden_single,
     mock_hidden_pairs,
     mock_hidden_triples,
+    mock_locked_candidates,
 ):
     mock_single_candidates.side_effect = [True, True, False]
     mock_naked_pairs.return_value = False
@@ -62,6 +69,7 @@ def test_solve_applies_single_candidates(
     mock_hidden_single.return_value = False
     mock_hidden_pairs.return_value = False
     mock_hidden_triples.return_value = False
+    mock_locked_candidates.return_value = False
 
     grid = Grid.from_rows_notation(
         [
@@ -91,6 +99,7 @@ def test_solve_applies_naked_pairs(
     mock_hidden_single,
     mock_hidden_pairs,
     mock_hidden_triples,
+    mock_locked_candidates,
 ):
     mock_single_candidates.return_value = False
     mock_naked_pairs.side_effect = [True, True, False]
@@ -98,6 +107,7 @@ def test_solve_applies_naked_pairs(
     mock_hidden_single.return_value = False
     mock_hidden_pairs.return_value = False
     mock_hidden_triples.return_value = False
+    mock_locked_candidates.return_value = False
 
     grid = Grid.from_rows_notation(
         [
@@ -127,6 +137,7 @@ def test_solve_applies_naked_triples(
     mock_hidden_single,
     mock_hidden_pairs,
     mock_hidden_triples,
+    mock_locked_candidates,
 ):
     mock_single_candidates.return_value = False
     mock_naked_pairs.return_value = False
@@ -134,6 +145,7 @@ def test_solve_applies_naked_triples(
     mock_hidden_single.return_value = False
     mock_hidden_pairs.return_value = False
     mock_hidden_triples.return_value = False
+    mock_locked_candidates.return_value = False
 
     grid = Grid.from_rows_notation(
         [
@@ -163,6 +175,7 @@ def test_solve_applies_hidden_single(
     mock_hidden_single,
     mock_hidden_pairs,
     mock_hidden_triples,
+    mock_locked_candidates,
 ):
     mock_single_candidates.return_value = False
     mock_naked_pairs.return_value = False
@@ -170,6 +183,7 @@ def test_solve_applies_hidden_single(
     mock_hidden_single.side_effect = [True, True, False]
     mock_hidden_pairs.return_value = False
     mock_hidden_triples.return_value = False
+    mock_locked_candidates.return_value = False
 
     grid = Grid.from_rows_notation(
         [
@@ -199,6 +213,7 @@ def test_solve_applies_hidden_pairs(
     mock_hidden_single,
     mock_hidden_pairs,
     mock_hidden_triples,
+    mock_locked_candidates,
 ):
     mock_single_candidates.return_value = False
     mock_naked_pairs.return_value = False
@@ -206,6 +221,7 @@ def test_solve_applies_hidden_pairs(
     mock_hidden_single.return_value = False
     mock_hidden_pairs.side_effect = [True, True, False]
     mock_hidden_triples.return_value = False
+    mock_locked_candidates.return_value = False
 
     grid = Grid.from_rows_notation(
         [
@@ -235,6 +251,7 @@ def test_solve_applies_hidden_triples(
     mock_hidden_single,
     mock_hidden_pairs,
     mock_hidden_triples,
+    mock_locked_candidates,
 ):
     mock_single_candidates.return_value = False
     mock_naked_pairs.return_value = False
@@ -242,6 +259,45 @@ def test_solve_applies_hidden_triples(
     mock_hidden_single.return_value = False
     mock_hidden_pairs.return_value = False
     mock_hidden_triples.side_effect = [True, True, False]
+    mock_locked_candidates.return_value = False
+
+    grid = Grid.from_rows_notation(
+        [
+            ".7.2.8.31",
+            "48.3.7...",
+            "9.3..4758",
+            ".4687...3",
+            "89..3.56.",
+            "..792.81.",
+            "754.12...",
+            "...7.3145",
+            "3.8.4.2.6",
+        ]
+    )
+    solver = Solver(grid)
+
+    solver.solve()
+
+    mock_hidden_triples.assert_has_calls([call(grid), call(grid), call(grid)])
+    assert mock_hidden_triples.call_count == 3
+
+
+def test_solve_applies_locked_candidates(
+    mock_single_candidates,
+    mock_naked_pairs,
+    mock_naked_triples,
+    mock_hidden_single,
+    mock_hidden_pairs,
+    mock_hidden_triples,
+    mock_locked_candidates,
+):
+    mock_single_candidates.return_value = False
+    mock_naked_pairs.return_value = False
+    mock_naked_triples.return_value = False
+    mock_hidden_single.return_value = False
+    mock_hidden_pairs.return_value = False
+    mock_hidden_triples.return_value = False
+    mock_locked_candidates.side_effect = [True, True, False]
 
     grid = Grid.from_rows_notation(
         [
@@ -271,13 +327,15 @@ def test_solve_only_applies_latter_rules_when_earlier_rules_fail(
     mock_hidden_single,
     mock_hidden_pairs,
     mock_hidden_triples,
+    mock_locked_candidates,
 ):
-    mock_single_candidates.side_effect = [True, False] * 32
-    mock_naked_pairs.side_effect = [True, False] * 16
-    mock_naked_triples.side_effect = [True, False] * 8
-    mock_hidden_single.side_effect = [True, False] * 4
-    mock_hidden_pairs.side_effect = [True, False] * 2
-    mock_hidden_triples.side_effect = [True, False]
+    mock_single_candidates.side_effect = [True, False] * 64
+    mock_naked_pairs.side_effect = [True, False] * 32
+    mock_naked_triples.side_effect = [True, False] * 16
+    mock_hidden_single.side_effect = [True, False] * 8
+    mock_hidden_pairs.side_effect = [True, False] * 4
+    mock_hidden_triples.side_effect = [True, False] * 2
+    mock_locked_candidates.side_effect = [True, False]
 
     grid = Grid.from_rows_notation(
         [
@@ -296,12 +354,13 @@ def test_solve_only_applies_latter_rules_when_earlier_rules_fail(
 
     solver.solve()
 
-    assert mock_single_candidates.call_count == 64
-    assert mock_naked_pairs.call_count == 32
-    assert mock_naked_triples.call_count == 16
-    assert mock_hidden_single.call_count == 8
-    assert mock_hidden_pairs.call_count == 4
-    assert mock_hidden_triples.call_count == 2
+    assert mock_single_candidates.call_count == 128
+    assert mock_naked_pairs.call_count == 64
+    assert mock_naked_triples.call_count == 32
+    assert mock_hidden_single.call_count == 16
+    assert mock_hidden_pairs.call_count == 8
+    assert mock_hidden_triples.call_count == 4
+    assert mock_locked_candidates.call_count == 2
 
 
 def test_is_solved_returns_true_when_all_cells_have_values():
