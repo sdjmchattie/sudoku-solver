@@ -47,6 +47,12 @@ def mock_locked_candidates():
         yield mock
 
 
+@pytest.fixture
+def mock_fish():
+    with patch("solver.apply_fish_rule") as mock:
+        yield mock
+
+
 def test_init_stores_grid():
     grid = Grid([[1, 2, 3, 4, 5, 6, 7, 8, 9]] * 9)
     solver = Solver(grid)
@@ -62,6 +68,7 @@ def test_solve_applies_single_candidates(
     mock_hidden_pairs,
     mock_hidden_triples,
     mock_locked_candidates,
+    mock_fish,
 ):
     mock_single_candidates.side_effect = [True, True, False]
     mock_naked_pairs.return_value = False
@@ -70,6 +77,7 @@ def test_solve_applies_single_candidates(
     mock_hidden_pairs.return_value = False
     mock_hidden_triples.return_value = False
     mock_locked_candidates.return_value = False
+    mock_fish.return_value = False
 
     grid = Grid.from_rows_notation(
         [
@@ -100,6 +108,7 @@ def test_solve_applies_naked_pairs(
     mock_hidden_pairs,
     mock_hidden_triples,
     mock_locked_candidates,
+    mock_fish,
 ):
     mock_single_candidates.return_value = False
     mock_naked_pairs.side_effect = [True, True, False]
@@ -108,6 +117,7 @@ def test_solve_applies_naked_pairs(
     mock_hidden_pairs.return_value = False
     mock_hidden_triples.return_value = False
     mock_locked_candidates.return_value = False
+    mock_fish.return_value = False
 
     grid = Grid.from_rows_notation(
         [
@@ -138,6 +148,7 @@ def test_solve_applies_naked_triples(
     mock_hidden_pairs,
     mock_hidden_triples,
     mock_locked_candidates,
+    mock_fish,
 ):
     mock_single_candidates.return_value = False
     mock_naked_pairs.return_value = False
@@ -146,6 +157,7 @@ def test_solve_applies_naked_triples(
     mock_hidden_pairs.return_value = False
     mock_hidden_triples.return_value = False
     mock_locked_candidates.return_value = False
+    mock_fish.return_value = False
 
     grid = Grid.from_rows_notation(
         [
@@ -176,6 +188,7 @@ def test_solve_applies_hidden_single(
     mock_hidden_pairs,
     mock_hidden_triples,
     mock_locked_candidates,
+    mock_fish,
 ):
     mock_single_candidates.return_value = False
     mock_naked_pairs.return_value = False
@@ -184,6 +197,7 @@ def test_solve_applies_hidden_single(
     mock_hidden_pairs.return_value = False
     mock_hidden_triples.return_value = False
     mock_locked_candidates.return_value = False
+    mock_fish.return_value = False
 
     grid = Grid.from_rows_notation(
         [
@@ -214,6 +228,7 @@ def test_solve_applies_hidden_pairs(
     mock_hidden_pairs,
     mock_hidden_triples,
     mock_locked_candidates,
+    mock_fish,
 ):
     mock_single_candidates.return_value = False
     mock_naked_pairs.return_value = False
@@ -222,6 +237,7 @@ def test_solve_applies_hidden_pairs(
     mock_hidden_pairs.side_effect = [True, True, False]
     mock_hidden_triples.return_value = False
     mock_locked_candidates.return_value = False
+    mock_fish.return_value = False
 
     grid = Grid.from_rows_notation(
         [
@@ -252,6 +268,7 @@ def test_solve_applies_hidden_triples(
     mock_hidden_pairs,
     mock_hidden_triples,
     mock_locked_candidates,
+    mock_fish,
 ):
     mock_single_candidates.return_value = False
     mock_naked_pairs.return_value = False
@@ -260,6 +277,7 @@ def test_solve_applies_hidden_triples(
     mock_hidden_pairs.return_value = False
     mock_hidden_triples.side_effect = [True, True, False]
     mock_locked_candidates.return_value = False
+    mock_fish.return_value = False
 
     grid = Grid.from_rows_notation(
         [
@@ -290,6 +308,7 @@ def test_solve_applies_locked_candidates(
     mock_hidden_pairs,
     mock_hidden_triples,
     mock_locked_candidates,
+    mock_fish,
 ):
     mock_single_candidates.return_value = False
     mock_naked_pairs.return_value = False
@@ -298,6 +317,7 @@ def test_solve_applies_locked_candidates(
     mock_hidden_pairs.return_value = False
     mock_hidden_triples.return_value = False
     mock_locked_candidates.side_effect = [True, True, False]
+    mock_fish.return_value = False
 
     grid = Grid.from_rows_notation(
         [
@@ -318,6 +338,54 @@ def test_solve_applies_locked_candidates(
 
     mock_hidden_triples.assert_has_calls([call(grid), call(grid), call(grid)])
     assert mock_hidden_triples.call_count == 3
+
+
+def test_solve_applies_fish_rule(
+    mock_single_candidates,
+    mock_naked_pairs,
+    mock_naked_triples,
+    mock_hidden_single,
+    mock_hidden_pairs,
+    mock_hidden_triples,
+    mock_locked_candidates,
+    mock_fish,
+):
+    mock_single_candidates.return_value = False
+    mock_naked_pairs.return_value = False
+    mock_naked_triples.return_value = False
+    mock_hidden_single.return_value = False
+    mock_hidden_pairs.return_value = False
+    mock_hidden_triples.return_value = False
+    mock_locked_candidates.return_value = False
+    mock_fish.side_effect = [True, True, False, False, False]
+
+    grid = Grid.from_rows_notation(
+        [
+            ".7.2.8.31",
+            "48.3.7...",
+            "9.3..4758",
+            ".4687...3",
+            "89..3.56.",
+            "..792.81.",
+            "754.12...",
+            "...7.3145",
+            "3.8.4.2.6",
+        ]
+    )
+    solver = Solver(grid)
+
+    solver.solve()
+
+    mock_fish.assert_has_calls(
+        [
+            call(grid, size=2),
+            call(grid, size=2),
+            call(grid, size=2),
+            call(grid, size=3),
+            call(grid, size=4),
+        ]
+    )
+    assert mock_fish.call_count == 5
 
 
 def test_solve_only_applies_latter_rules_when_earlier_rules_fail(

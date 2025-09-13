@@ -1,4 +1,4 @@
-from model.grid import Grid
+from model import Grid
 from itertools import combinations
 
 

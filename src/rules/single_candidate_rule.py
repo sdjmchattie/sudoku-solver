@@ -1,4 +1,4 @@
-from model.grid import Grid
+from model import Grid
 from rules.set_cell_value import set_cell_value
 
 
