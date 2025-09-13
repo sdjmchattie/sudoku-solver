@@ -1,5 +1,6 @@
 from model.grid import Grid
 from rules import (
+    apply_fish_rule,
     apply_hidden_single_rule,
     apply_hidden_pairs_rule,
     apply_hidden_triples_rule,
@@ -33,6 +34,9 @@ class Solver:
                 or apply_hidden_pairs_rule(self.grid)
                 or apply_hidden_triples_rule(self.grid)
                 or apply_locked_candidates_rule(self.grid)
+                or apply_fish_rule(self.grid, size=2)
+                or apply_fish_rule(self.grid, size=3)
+                or apply_fish_rule(self.grid, size=4)
             )
 
             # If no rules were applied, we cannot proceed further

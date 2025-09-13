@@ -1,3 +1,4 @@
+from .fish_rules import apply_fish_rule
 from .hidden_set_rules import (
     apply_hidden_single_rule,
     apply_hidden_pairs_rule,
@@ -8,6 +9,7 @@ from .naked_set_rules import apply_naked_pairs_rule, apply_naked_triples_rule
 from .single_candidate_rule import apply_single_candidate_rule
 
 __all__ = [
+    "apply_fish_rule",
     "apply_hidden_single_rule",
     "apply_hidden_pairs_rule",
     "apply_hidden_triples_rule",
