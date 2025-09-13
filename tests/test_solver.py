@@ -396,14 +396,16 @@ def test_solve_only_applies_latter_rules_when_earlier_rules_fail(
     mock_hidden_pairs,
     mock_hidden_triples,
     mock_locked_candidates,
+    mock_fish,
 ):
-    mock_single_candidates.side_effect = [True, False] * 64
-    mock_naked_pairs.side_effect = [True, False] * 32
-    mock_naked_triples.side_effect = [True, False] * 16
-    mock_hidden_single.side_effect = [True, False] * 8
-    mock_hidden_pairs.side_effect = [True, False] * 4
-    mock_hidden_triples.side_effect = [True, False] * 2
-    mock_locked_candidates.side_effect = [True, False]
+    mock_single_candidates.side_effect = [True, False] * 128
+    mock_naked_pairs.side_effect = [True, False] * 64
+    mock_naked_triples.side_effect = [True, False] * 32
+    mock_hidden_single.side_effect = [True, False] * 16
+    mock_hidden_pairs.side_effect = [True, False] * 8
+    mock_hidden_triples.side_effect = [True, False] * 4
+    mock_locked_candidates.side_effect = [True, False] * 2
+    mock_fish.side_effect = [True, False, False, False]
 
     grid = Grid.from_rows_notation(
         [
@@ -422,13 +424,14 @@ def test_solve_only_applies_latter_rules_when_earlier_rules_fail(
 
     solver.solve()
 
-    assert mock_single_candidates.call_count == 128
-    assert mock_naked_pairs.call_count == 64
-    assert mock_naked_triples.call_count == 32
-    assert mock_hidden_single.call_count == 16
-    assert mock_hidden_pairs.call_count == 8
-    assert mock_hidden_triples.call_count == 4
-    assert mock_locked_candidates.call_count == 2
+    assert mock_single_candidates.call_count == 256
+    assert mock_naked_pairs.call_count == 128
+    assert mock_naked_triples.call_count == 64
+    assert mock_hidden_single.call_count == 32
+    assert mock_hidden_pairs.call_count == 16
+    assert mock_hidden_triples.call_count == 8
+    assert mock_locked_candidates.call_count == 4
+    assert mock_fish.call_count == 4
 
 
 def test_is_solved_returns_true_when_all_cells_have_values():
