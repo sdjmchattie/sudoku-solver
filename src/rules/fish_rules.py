@@ -44,9 +44,7 @@ def apply_fish_rule(grid: Grid, size: int) -> bool:
                             r not in row_comb
                             and candidate in grid[Point(c, r)].candidates
                         ):
-                            grid[Point(c, r)].candidates -= {
-                                candidate,
-                            }
+                            grid[Point(c, r)].candidates -= {candidate}
                             applied = True
 
     # Check columns for fish patterns
@@ -75,9 +73,7 @@ def apply_fish_rule(grid: Grid, size: int) -> bool:
                             c not in col_comb
                             and candidate in grid[Point(c, r)].candidates
                         ):
-                            grid[Point(c, r)].candidates -= {
-                                candidate,
-                            }
+                            grid[Point(c, r)].candidates -= {candidate}
                             applied = True
 
     return applied
