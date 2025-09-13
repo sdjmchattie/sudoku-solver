@@ -1,5 +1,4 @@
-from model.grid import Grid
-from model.point import Point
+from model import Grid, Point
 
 
 def _intersection_iter(grid: Grid):
