@@ -54,7 +54,7 @@ def _apply_hidden_set_rule(grid: Grid, size: int) -> bool:
 
 def apply_hidden_single_rule(grid: Grid) -> bool:
     """
-    Reduce candidates across all cells where the hidden pairs rule applies.
+    Reduce candidates across all cells where the hidden single rule applies.
 
     Args:
         grid (Grid): The Sudoku grid to apply the solver to.

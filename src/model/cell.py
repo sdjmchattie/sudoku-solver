@@ -91,7 +91,7 @@ class Cell:
             self._candidates.clear()
 
     @property
-    def candidates(self) -> set:
+    def candidates(self) -> set[int]:
         """
         Returns the set of candidates for the cell.
         Note that modifying the returned set will not affect the cell's candidates.
@@ -102,7 +102,7 @@ class Cell:
         return self._candidates.copy()
 
     @candidates.setter
-    def candidates(self, candidates: set):
+    def candidates(self, candidates: set[int]):
         """
         Sets the candidates for the cell.
 
