@@ -2,6 +2,11 @@ from itertools import combinations
 from model import Grid, Point
 
 
+def _has_candidate_at(grid: Grid, column: int, row: int, candidate: int) -> bool:
+    cell = grid[Point(column, row)]
+    return (cell is not None) and (candidate in cell.candidates)
+
+
 def apply_fish_rule(grid: Grid, size: int) -> bool:
     """
     Apply the fish rule (X-Wing, Swordfish, Jellyfish) to the Sudoku grid.
@@ -23,7 +28,8 @@ def apply_fish_rule(grid: Grid, size: int) -> bool:
         rows_with_candidate = [
             r
             for r in range(9)
-            if sum(1 for c in range(9) if candidate in grid[Point(c, r)].candidates) > 0
+            if sum(True for c in range(9) if _has_candidate_at(grid, c, r, candidate))
+            > 0
         ]
         if len(rows_with_candidate) < size:
             continue
@@ -33,26 +39,28 @@ def apply_fish_rule(grid: Grid, size: int) -> bool:
                 c
                 for r in row_comb
                 for c in range(9)
-                if candidate in grid[Point(c, r)].candidates
+                if _has_candidate_at(grid, c, r, candidate)
             }
 
             if len(cols) == size:
                 # Found a fish pattern
                 for c in cols:
                     for r in range(9):
-                        if (
-                            r not in row_comb
-                            and candidate in grid[Point(c, r)].candidates
+                        if r not in row_comb and _has_candidate_at(
+                            grid, c, r, candidate
                         ):
-                            grid[Point(c, r)].candidates -= {candidate}
-                            applied = True
+                            cell = grid[Point(c, r)]
+                            if cell is not None:
+                                cell.candidates -= {candidate}
+                                applied = True
 
     # Check columns for fish patterns
     for candidate in range(1, 10):
         cols_with_candidate = [
             c
             for c in range(9)
-            if sum(1 for r in range(9) if candidate in grid[Point(c, r)].candidates) > 0
+            if sum(True for r in range(9) if _has_candidate_at(grid, c, r, candidate))
+            > 0
         ]
         if len(cols_with_candidate) < size:
             continue
@@ -62,18 +70,19 @@ def apply_fish_rule(grid: Grid, size: int) -> bool:
                 r
                 for c in col_comb
                 for r in range(9)
-                if candidate in grid[Point(c, r)].candidates
+                if _has_candidate_at(grid, c, r, candidate)
             }
 
             if len(rows) == size:
                 # Found a fish pattern
                 for r in rows:
                     for c in range(9):
-                        if (
-                            c not in col_comb
-                            and candidate in grid[Point(c, r)].candidates
+                        if c not in col_comb and _has_candidate_at(
+                            grid, c, r, candidate
                         ):
-                            grid[Point(c, r)].candidates -= {candidate}
-                            applied = True
+                            cell = grid[Point(c, r)]
+                            if cell is not None:
+                                cell.candidates -= {candidate}
+                                applied = True
 
     return applied

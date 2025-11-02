@@ -40,7 +40,11 @@ def apply_xy_wing_rule(grid: Grid) -> bool:
             wing2_neighbours = grid.get_neighbours(wing2)
             common_neighbours = wing1_neighbours.intersection(wing2_neighbours)
 
-            for cell in [cell for cell in common_neighbours if z in cell.candidates and cell != pivot]:
+            for cell in [
+                cell
+                for cell in common_neighbours
+                if z in cell.candidates and cell != pivot
+            ]:
                 cell.candidates -= {z}
                 applied = True
 
@@ -80,7 +84,9 @@ def apply_xyz_wing_rule(grid: Grid) -> bool:
             pivot_neighbours = grid.get_neighbours(pivot)
             wing1_neighbours = grid.get_neighbours(wing1)
             wing2_neighbours = grid.get_neighbours(wing2)
-            common_neighbours = pivot_neighbours.intersection(wing1_neighbours).intersection(wing2_neighbours)
+            common_neighbours = pivot_neighbours.intersection(
+                wing1_neighbours
+            ).intersection(wing2_neighbours)
 
             for cell in [cell for cell in common_neighbours if z in cell.candidates]:
                 cell.candidates -= {z}
