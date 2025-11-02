@@ -8,6 +8,8 @@ from rules import (
     apply_naked_pairs_rule,
     apply_naked_triples_rule,
     apply_single_candidate_rule,
+    apply_xy_wing_rule,
+    apply_xyz_wing_rule,
 )
 
 
@@ -37,6 +39,8 @@ class Solver:
                 or apply_fish_rule(self.grid, size=2)
                 or apply_fish_rule(self.grid, size=3)
                 or apply_fish_rule(self.grid, size=4)
+                or apply_xy_wing_rule(self.grid)
+                or apply_xyz_wing_rule(self.grid)
             )
 
             # If no rules were applied, we cannot proceed further
