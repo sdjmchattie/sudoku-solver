@@ -1,27 +1,8 @@
-from itertools import chain, repeat
-from unittest.mock import call, patch, DEFAULT
+from unittest.mock import patch
 
 import pytest
-from model import Grid
+from model import Grid, Point
 from solver import Solver
-
-
-@pytest.fixture
-def all_mocks():
-    with patch.multiple(
-        "solver",
-        apply_single_candidate_rule=DEFAULT,
-        apply_naked_pairs_rule=DEFAULT,
-        apply_naked_triples_rule=DEFAULT,
-        apply_hidden_single_rule=DEFAULT,
-        apply_hidden_pairs_rule=DEFAULT,
-        apply_hidden_triples_rule=DEFAULT,
-        apply_locked_candidates_rule=DEFAULT,
-        apply_fish_rule=DEFAULT,
-        apply_xy_wing_rule=DEFAULT,
-        apply_xyz_wing_rule=DEFAULT,
-    ) as mocks:
-        yield mocks
 
 
 BASE_GRID = [
@@ -44,85 +25,41 @@ def test_init_stores_grid():
     assert solver.grid is grid
 
 
-@pytest.mark.parametrize(
-    "rule_attr",
-    [
-        "apply_single_candidate_rule",
-        "apply_naked_pairs_rule",
-        "apply_naked_triples_rule",
-        "apply_hidden_single_rule",
-        "apply_hidden_pairs_rule",
-        "apply_hidden_triples_rule",
-        "apply_locked_candidates_rule",
-        "apply_xy_wing_rule",
-        "apply_xyz_wing_rule",
-    ],
-)
-def test_each_rule_applies_when_earlier_rules_return_false(all_mocks, rule_attr):
-    # Make every rule return False by default
-    for mock in all_mocks.values():
-        mock.return_value = False
+def test_init_defaults_use_nishio_to_true():
+    grid = Grid([[1, 2, 3, 4, 5, 6, 7, 8, 9]] * 9)
+    solver = Solver(grid)
 
-    # The rule under test should be the only one that returns True twice then False
-    all_mocks[rule_attr].side_effect = [True, True, False]
+    assert solver.use_nishio is True
 
+
+def test_init_stores_use_nishio():
+    grid = Grid([[1, 2, 3, 4, 5, 6, 7, 8, 9]] * 9)
+    solver = Solver(grid, use_nishio=False)
+
+    assert solver.use_nishio is False
+
+
+def test_solve_calls_apply_rules_until_it_returns_false():
     grid = Grid.from_rows_notation(BASE_GRID)
     solver = Solver(grid)
 
-    # Act
-    solver.solve()
+    with patch("solver.apply_rules", side_effect=[True, True, False]) as mock_apply:
+        solver.solve()
 
-    # Assert: the rule under test was invoked three times with the grid
-    all_mocks[rule_attr].assert_has_calls([call(grid), call(grid), call(grid)])
-    assert all_mocks[rule_attr].call_count == 3
+    assert mock_apply.call_count == 3
+    for call in mock_apply.call_args_list:
+        assert call[0][0] is grid
+        assert call[0][1] is True
 
 
-def test_fish_rule_call_patterns(all_mocks):
-    # Ensure non-fish rules do nothing
-    for name, mock in all_mocks.items():
-        if name != "apply_fish_rule":
-            mock.return_value = False
-
-    fish = all_mocks["apply_fish_rule"]
-    fish.side_effect = [True, True, False, False, False]
-
+def test_solve_passes_use_nishio_to_apply_rules():
     grid = Grid.from_rows_notation(BASE_GRID)
-    solver = Solver(grid)
+    solver = Solver(grid, use_nishio=False)
 
-    solver.solve()
+    with patch("solver.apply_rules", return_value=False) as mock_apply:
+        solver.solve()
 
-    # Expect three calls with size=2, then one with size=3 and one with size=4 (in sequence)
-    expected_calls = [
-        call(grid, size=2),
-        call(grid, size=2),
-        call(grid, size=2),
-        call(grid, size=3),
-        call(grid, size=4),
-    ]
-    fish.assert_has_calls(expected_calls)
-    assert fish.call_count == 5
-
-
-def test_only_applies_latter_rules_when_earlier_rules_fail(all_mocks):
-    for mock in all_mocks.values():
-        mock.side_effect = chain([True], repeat(False))
-
-    grid = Grid.from_rows_notation(BASE_GRID)
-    solver = Solver(grid)
-
-    solver.solve()
-
-    assert all_mocks["apply_single_candidate_rule"].call_count == 11
-    assert all_mocks["apply_naked_pairs_rule"].call_count == 10
-    assert all_mocks["apply_naked_triples_rule"].call_count == 9
-    assert all_mocks["apply_hidden_single_rule"].call_count == 8
-    assert all_mocks["apply_hidden_pairs_rule"].call_count == 7
-    assert all_mocks["apply_hidden_triples_rule"].call_count == 6
-    assert all_mocks["apply_locked_candidates_rule"].call_count == 5
-    # apply_fish_rule is called 4 + 3n where n is number of rules below it.
-    assert all_mocks["apply_fish_rule"].call_count == 10
-    assert all_mocks["apply_xy_wing_rule"].call_count == 3
-    assert all_mocks["apply_xyz_wing_rule"].call_count == 2
+    mock_apply.assert_called_once_with(grid, False)
 
 
 def test_is_solved_returns_true_when_all_cells_have_values():
@@ -253,6 +190,49 @@ def test_is_valid_returns_false_when_value_is_repeated_in_block():
             ".........",
         ]
     )
+    solver = Solver(grid)
+
+    assert solver.is_valid() is False
+
+
+def test_is_valid_returns_true_when_grid_is_entirely_empty():
+    grid = Grid.from_rows_notation(
+        [
+            ".........",
+            ".........",
+            ".........",
+            ".........",
+            ".........",
+            ".........",
+            ".........",
+            ".........",
+            ".........",
+        ]
+    )
+
+    solver = Solver(grid)
+
+    assert solver.is_valid() is True
+
+
+def test_is_valid_returns_false_when_cell_has_no_candidates():
+    grid = Grid.from_rows_notation(
+        [
+            ".........",
+            ".........",
+            ".........",
+            ".........",
+            ".........",
+            ".........",
+            ".........",
+            ".........",
+            ".........",
+        ]
+    )
+
+    # Manually clear candidates for one cell to simulate a contradiction
+    grid[Point(0, 0)].candidates = set()
+
     solver = Solver(grid)
 
     assert solver.is_valid() is False

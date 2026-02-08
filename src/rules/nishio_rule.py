@@ -20,7 +20,9 @@ def apply_nishio_rule(grid: Grid) -> bool:
         key=lambda c: len(c.candidates),
     )
 
+    changed = False
     for cell in unsolved:
+        candidates_to_remove: set[int] = set()
         for candidate in cell.candidates:
             trial_grid = grid.duplicate()
             trial_cell = trial_grid[cell.coord]
@@ -33,7 +35,10 @@ def apply_nishio_rule(grid: Grid) -> bool:
             solver.solve()
 
             if not solver.is_valid():
-                cell.candidates -= {candidate}
-                return True
+                candidates_to_remove.add(candidate)
 
-    return False
+        if candidates_to_remove:
+            cell.candidates -= candidates_to_remove
+            changed = True
+
+    return changed
