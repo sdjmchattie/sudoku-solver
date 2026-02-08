@@ -502,3 +502,51 @@ def test_get_row_cells_with_invalid_block_index():
 
     assert len(grid.get_row_cells(0, 3)) == 0  # Block index too high
     assert len(grid.get_row_cells(0, -1)) == 0  # Block index too low
+
+
+def test_duplicate_preserves_values_and_calculated_candidates():
+    rows = [
+        ".7.2.8.31",
+        "48.3.7...",
+        "9.3..4758",
+        ".4687...3",
+        "89..3.56.",
+        "..792.81.",
+        "754.12...",
+        "...7.3145",
+        "3.8.4.2.6",
+    ]
+    grid = Grid.from_rows_notation(rows)
+    duplicate = grid.duplicate()
+
+    for cell in grid:
+        copied_cell = duplicate[cell.coord]
+        assert copied_cell is not None
+        assert copied_cell.value == cell.value
+        assert copied_cell.candidates == cell.candidates
+
+
+def test_duplicate_creates_independent_cells():
+    rows = [
+        ".7.2.8.31",
+        "48.3.7...",
+        "9.3..4758",
+        ".4687...3",
+        "89..3.56.",
+        "..792.81.",
+        "754.12...",
+        "...7.3145",
+        "3.8.4.2.6",
+    ]
+    grid = Grid.from_rows_notation(rows)
+    duplicate = grid.duplicate()
+
+    # Modify candidates in the copy
+    target = duplicate[Point(0, 0)]
+    original = grid[Point(0, 0)]
+    original_candidates = original.candidates.copy()
+    target.candidates = {1}
+
+    # Original should be unchanged
+    assert original.candidates == original_candidates
+    assert target.candidates == {1}
