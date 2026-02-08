@@ -101,6 +101,16 @@ class Grid:
 
         return Grid(values)
 
+    def duplicate(self) -> "Grid":
+        """
+        Create a duplicate of the grid.
+        The duplicate only copies the solved values over, then calculates the remaining candidates.
+
+        Returns:
+            Grid: A new Grid instance with the same cell values as this one.
+        """
+        return Grid([[self[Point(c, r)].value for c in range(9)] for r in range(9)])
+
     def get_neighbours(self, cell: Cell) -> set[Cell]:
         """
         Get the 20 neighbouring cells of a specified cell in the grid.

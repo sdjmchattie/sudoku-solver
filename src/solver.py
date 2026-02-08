@@ -1,50 +1,23 @@
 from model.grid import Grid
-from rules import (
-    apply_fish_rule,
-    apply_hidden_single_rule,
-    apply_hidden_pairs_rule,
-    apply_hidden_triples_rule,
-    apply_locked_candidates_rule,
-    apply_naked_pairs_rule,
-    apply_naked_triples_rule,
-    apply_single_candidate_rule,
-    apply_xy_wing_rule,
-    apply_xyz_wing_rule,
-)
-
+from rules.all_rules import apply as apply_rules
 
 class Solver:
-    def __init__(self, grid: Grid):
+    def __init__(self, grid: Grid, use_nishio: bool = True):
         """Construct a Solver instance with the given Sudoku grid.
 
         Args:
             grid (Grid): The Sudoku grid to be solved.
+            use_nishio (bool): Whether to use the Nishio rule as a last resort.
+                Defaults to True.
         """
         self.grid = grid
+        self.use_nishio = use_nishio
 
     def solve(self):
         """Solve the Sudoku puzzle using a cycle of rules until no more rules can be applied."""
         while True:
-            # Apply rules, stopping after the first successful application.
-            # This ensures we always apply the simplest rules first.
-            # This can help with efficiency where complex rules take more CPU cycles to apply.
-            applied = (
-                apply_single_candidate_rule(self.grid)
-                or apply_naked_pairs_rule(self.grid)
-                or apply_naked_triples_rule(self.grid)
-                or apply_hidden_single_rule(self.grid)
-                or apply_hidden_pairs_rule(self.grid)
-                or apply_hidden_triples_rule(self.grid)
-                or apply_locked_candidates_rule(self.grid)
-                or apply_fish_rule(self.grid, size=2)
-                or apply_fish_rule(self.grid, size=3)
-                or apply_fish_rule(self.grid, size=4)
-                or apply_xy_wing_rule(self.grid)
-                or apply_xyz_wing_rule(self.grid)
-            )
-
-            # If no rules were applied, we cannot proceed further
-            if not applied:
+            # If no rules apply, we cannot proceed further
+            if not apply_rules(self.grid, self.use_nishio):
                 break
 
     def is_solved(self) -> bool:
@@ -63,6 +36,9 @@ class Solver:
             bool: True if all solved cells do not conflict with their neighbours.
         """
         for cell in self.grid:
+            if cell.value is None and len(cell.candidates) == 0:
+                return False
+
             if cell.value is not None and any(
                 neighbour.value == cell.value
                 for neighbour in self.grid.get_neighbours(cell)

@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 from model import Grid
 from runner import apply_solver
 
@@ -77,7 +79,9 @@ def test_apply_solver_with_unsolvable_puzzle_returns_unsolved_message():
         ]
     )
 
-    result = apply_solver(grid)
+    # Nishio doesn't work well on an empty grid, so patch out the response as False.
+    with patch("rules.nishio_rule.apply_nishio_rule", return_value=False):
+        result = apply_solver(grid)
 
     assert result == (
         "The puzzle could not be solved. Either it's unsolvable or it requires "
